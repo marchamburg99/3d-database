@@ -346,7 +346,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 
@@ -438,16 +438,15 @@ function initThree() {
   });
 }
 
-// --- Load USDZ model ---
+// --- Load GLB model ---
 async function loadModel(meta) {
-  const loader = new USDZLoader();
+  const loader = new GLTFLoader();
 
   return new Promise((resolve, reject) => {
     loader.load(
-      meta.usdzFile,
-      (group) => {
-        // Blender exportiert Z-up → drei.js ist Y-up
-        group.rotation.x = -Math.PI / 2;
+      meta.glbFile,
+      (gltf) => {
+        const group = gltf.scene;
 
         // Center & scale model
         const box = new THREE.Box3().setFromObject(group);
@@ -475,7 +474,7 @@ async function loadModel(meta) {
         scene.add(group);
         modelGroup = group;
 
-        // Adjust camera to model
+        // Kamera auf Modell ausrichten
         const scaledSize = size.clone().multiplyScalar(scale);
         const dist = Math.max(scaledSize.x, scaledSize.y, scaledSize.z) * 2.2;
         camera.position.set(0, scaledSize.y * 0.6, dist);
