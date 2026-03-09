@@ -41,32 +41,17 @@
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       text-decoration: none;
-    }
-
-    .logo-mark {
-      width: 36px;
-      height: 36px;
-      background: var(--lime);
-      border-radius: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
     }
 
-    .logo-mark svg { width: 22px; height: 22px; }
-
-    .logo-text {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--white);
-      letter-spacing: -0.3px;
+    .logo img {
+      height: 30px;
+      background: white;
+      padding: 4px 10px;
+      border-radius: 8px;
     }
-
-    .logo-text span { color: var(--lime); }
 
     header h1 {
       flex: 1;
@@ -214,12 +199,7 @@
 
 <header>
   <a href="/" class="logo">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#002432" stroke="#002432" stroke-width="1" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <span class="logo-text">heim<span>Watt</span></span>
+    <img src="heimwatt-logo.png" alt="heimWatt">
   </a>
   <h1>3D-Bibliothek</h1>
 </header>

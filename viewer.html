@@ -110,16 +110,16 @@
     }
 
     .logo-mark-sm {
-      width: 32px;
-      height: 32px;
-      background: var(--lime);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       flex-shrink: 0;
     }
-    .logo-mark-sm svg { width: 18px; height: 18px; }
+
+    .logo-mark-sm img {
+      height: 26px;
+      background: white;
+      padding: 3px 8px;
+      border-radius: 7px;
+      display: block;
+    }
 
     /* Spacer */
     .overlay-spacer { flex: 1; }
@@ -275,11 +275,7 @@
 <div id="canvas-container"></div>
 
 <div id="loading-screen">
-  <div class="logo-mark-sm" style="width:56px;height:56px;border-radius:14px;">
-    <svg viewBox="0 0 24 24" fill="none" style="width:32px;height:32px">
-      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#002432" stroke="#002432" stroke-width="1" stroke-linejoin="round"/>
-    </svg>
-  </div>
+  <img src="heimwatt-logo.png" alt="heimWatt" style="height:36px;background:white;padding:6px 14px;border-radius:10px;">
   <div class="spinner"></div>
   <span class="loading-text">Modell wird geladen…</span>
 </div>
@@ -302,9 +298,7 @@
       <p id="model-desc">Tippen & ziehen zum Drehen</p>
     </div>
     <div class="logo-mark-sm">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#002432" stroke="#002432" stroke-width="1" stroke-linejoin="round"/>
-      </svg>
+      <img src="heimwatt-logo.png" alt="heimWatt">
     </div>
   </div>
 
