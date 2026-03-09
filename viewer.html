@@ -369,7 +369,7 @@ function initThree() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.8;
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
@@ -382,21 +382,35 @@ function initThree() {
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 100);
   camera.position.set(0, 1.5, 4);
 
-  // Lights
-  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  // Studio Lighting Setup (3-Punkt + Ambient)
+  // Helles Umgebungslicht – hebt Schatten auf
+  const ambient = new THREE.AmbientLight(0xffffff, 1.2);
   scene.add(ambient);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  dirLight.position.set(5, 10, 5);
-  dirLight.castShadow = true;
-  dirLight.shadow.mapSize.set(1024, 1024);
-  dirLight.shadow.camera.near = 0.1;
-  dirLight.shadow.camera.far = 50;
-  scene.add(dirLight);
+  // Key Light – Hauptlicht von oben-vorne-rechts, kräftig
+  const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+  keyLight.position.set(4, 8, 6);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.near = 0.1;
+  keyLight.shadow.camera.far = 50;
+  keyLight.shadow.bias = -0.001;
+  scene.add(keyLight);
 
-  const fillLight = new THREE.DirectionalLight(0xB5D94F, 0.3);
-  fillLight.position.set(-5, 2, -3);
+  // Fill Light – von links, weich, neutralisiert harte Schatten
+  const fillLight = new THREE.DirectionalLight(0xffffff, 2.0);
+  fillLight.position.set(-5, 4, 3);
   scene.add(fillLight);
+
+  // Back/Rim Light – von hinten, gibt Tiefe und Kontur
+  const rimLight = new THREE.DirectionalLight(0xddeeff, 1.5);
+  rimLight.position.set(-2, 6, -6);
+  scene.add(rimLight);
+
+  // Boden-Aufhellung – reflektiert Licht von unten wie ein Studioboden
+  const groundLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  groundLight.position.set(0, -4, 2);
+  scene.add(groundLight);
 
   // Grid
   const grid = new THREE.GridHelper(20, 20, 0x1a3a4a, 0x1a3a4a);
