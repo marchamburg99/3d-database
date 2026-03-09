@@ -131,7 +131,6 @@
 
     /* ── Content ────────────────────────────── */
     main {
-      padding: 20px 16px;
       max-width: 600px;
       margin: 0 auto;
       padding-bottom: max(40px, env(safe-area-inset-bottom));
@@ -142,6 +141,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 14px;
+      padding: 20px 16px 0;
     }
 
     .section-head h2 {
@@ -171,170 +171,99 @@
       border-radius: 20px;
     }
 
-    /* ── Model Card ─────────────────────────── */
+    /* ── Model Grid ─────────────────────────── */
     .model-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
     }
 
     .model-card {
-      background: var(--white);
-      border-radius: var(--card-r);
-      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: var(--accent-color, var(--navy));
       text-decoration: none;
-      color: inherit;
-      display: block;
-      border: 1px solid rgba(0,36,50,0.09);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px;
       position: relative;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      transition: filter 0.15s;
     }
 
     .model-card:active {
-      transform: scale(0.985);
-      border-color: rgba(0,36,50,0.15);
+      filter: brightness(0.88);
     }
 
-    /* Farbiger Akzent-Streifen oben */
-    .model-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--accent-color, var(--lime));
-      z-index: 1;
-    }
-
-    /* Thumbnail-Bereich */
-    .card-thumb {
-      width: 100%;
-      height: 200px;
-      position: relative;
-      overflow: hidden;
-      background: var(--navy);
-    }
-
-    .card-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-    }
-
-    /* Gradient overlay über dem Bild */
-    .card-thumb::after {
-      content: '';
+    /* Thumbnail subtil als Textur im Hintergrund */
+    .card-thumb-bg {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to bottom,
-        transparent 40%,
-        rgba(0,36,50,0.6) 100%
-      );
+      background-size: cover;
+      background-position: center;
+      opacity: 0.18;
+      mix-blend-mode: luminosity;
     }
 
-    /* Badge-Gruppe oben rechts im Bild */
+    /* Badge-Gruppe oben rechts */
     .thumb-badges {
-      position: absolute;
-      top: 12px;
-      right: 12px;
       display: flex;
       gap: 5px;
-      z-index: 2;
+      align-self: flex-end;
+      position: relative;
+      z-index: 1;
     }
 
     .tbadge {
       font-size: 10px;
       font-weight: 700;
-      padding: 4px 9px;
-      border-radius: 20px;
+      padding: 3px 8px;
       letter-spacing: 0.3px;
-      backdrop-filter: blur(8px);
-    }
-
-    .tbadge-vr {
-      background: rgba(91,66,241,0.85);
+      background: rgba(255,255,255,0.2);
       color: white;
+      backdrop-filter: blur(6px);
     }
 
     .tbadge-ar {
-      background: rgba(181,217,79,0.9);
+      background: rgba(255,255,255,0.9);
       color: var(--navy);
     }
 
-    /* Card-Body */
+    /* Text unten */
     .card-body {
-      padding: 14px 16px 16px;
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
-      gap: 5px;
-    }
-
-    .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      gap: 3px;
     }
 
     .card-category {
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-    }
-
-    .cat-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--accent-color, var(--lime));
-      flex-shrink: 0;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.6);
     }
 
     .card-name {
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 800;
-      color: var(--navy);
-      line-height: 1.25;
+      color: white;
+      line-height: 1.2;
       letter-spacing: -0.2px;
     }
 
-    .card-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-    }
-
     .card-cta {
-      font-size: 12px;
+      margin-top: 6px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--accent-color, var(--lime));
+      color: rgba(255,255,255,0.7);
       display: flex;
       align-items: center;
-      gap: 4px;
-    }
-
-    .card-cta svg {
-      transition: transform 0.15s;
-    }
-
-    .model-card:active .card-cta svg {
-      transform: translateX(2px);
-    }
-
-    .file-size {
-      font-size: 11px;
-      color: var(--muted);
+      gap: 3px;
     }
 
     /* ── Loading ─────────────────────────────── */
@@ -400,30 +329,22 @@ async function loadModels() {
     grid.innerHTML = models.map(m => `
       <a class="model-card" href="viewer.html?id=${encodeURIComponent(m.id)}"
          style="--accent-color:${m.color}">
-        <div class="card-thumb">
-          <img src="thumbnails/${m.id}.png" alt="${m.name}"
-               onerror="this.parentElement.style.background='${m.color}22';this.style.display='none'">
-          <div class="thumb-badges">
-            <span class="tbadge tbadge-vr">VR</span>
-            <span class="tbadge tbadge-ar">AR</span>
-          </div>
+        <div class="card-thumb-bg"
+             style="background-image:url('thumbnails/${m.id}.png')"></div>
+        <div class="thumb-badges">
+          <span class="tbadge">VR</span>
+          <span class="tbadge tbadge-ar">AR</span>
         </div>
         <div class="card-body">
-          <div class="card-meta">
-            <div class="cat-dot"></div>
-            <span class="card-category">${m.category}</span>
-          </div>
+          <span class="card-category">${m.category}</span>
           <span class="card-name">${m.name}</span>
-          <span class="card-desc">${m.description}</span>
-          <div class="card-footer">
-            <span class="card-cta">
-              Jetzt ansehen
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.6"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-          </div>
+          <span class="card-cta">
+            Ansehen
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M4 2.5l3.5 3.5L4 9.5" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
         </div>
       </a>
     `).join('');
