@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>3D-Viewer – heimWatt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #002432;
+      --lime:   #B5D94F;
+      --purple: #5B42F1;
+      --bg:     #F5F5F5;
+      --white:  #FFFFFF;
+      --muted:  #6b7280;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Manrope', sans-serif;
+      background: #0a1628;
+    }
+
+    /* Canvas */
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .viewer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      background: linear-gradient(to bottom, rgba(0,36,50,0.9) 0%, transparent 100%);
+      pointer-events: all;
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.12);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .back-btn:active { background: rgba(255,255,255,0.2); }
+
+    .model-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .model-info h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .model-info p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .logo-mark-sm {
+      width: 32px;
+      height: 32px;
+      background: var(--lime);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-mark-sm svg { width: 18px; height: 18px; }
+
+    /* Spacer */
+    .overlay-spacer { flex: 1; }
+
+    /* Bottom controls */
+    .viewer-bottom {
+      padding: 16px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0,36,50,0.85) 0%, transparent 100%);
+      pointer-events: all;
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .ctrl-btn {
+      flex: 1;
+      max-width: 180px;
+      height: 52px;
+      border-radius: 16px;
+      border: none;
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ctrl-btn:active { opacity: 0.75; }
+
+    .btn-vr {
+      background: var(--purple);
+      color: white;
+    }
+
+    .btn-ar {
+      background: var(--lime);
+      color: var(--navy);
+    }
+
+    .btn-reset {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      max-width: 52px;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      flex: 0 0 52px;
+    }
+
+    .ctrl-btn svg { flex-shrink: 0; }
+
+    /* Loading overlay */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 100;
+      transition: opacity 0.4s ease;
+    }
+
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(181,217,79,0.2);
+      border-top-color: var(--lime);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Error */
+    #error-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--navy);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 100;
+      padding: 32px;
+      text-align: center;
+    }
+
+    #error-screen p { color: rgba(255,255,255,0.7); font-size: 14px; }
+    #error-screen strong { color: white; font-size: 18px; display: block; }
+
+    .err-back {
+      margin-top: 8px;
+      background: var(--lime);
+      color: var(--navy);
+      border: none;
+      border-radius: 14px;
+      padding: 14px 28px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Hint */
+    .touch-hint {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.55);
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    .touch-hint.hidden { opacity: 0; }
+
+    /* VR Button injected by three.js – override style */
+    #VRButton, #ARButton {
+      display: none !important; /* we use custom buttons */
+    }
+  </style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="loading-screen">
+  <div class="logo-mark-sm" style="width:56px;height:56px;border-radius:14px;">
+    <svg viewBox="0 0 24 24" fill="none" style="width:32px;height:32px">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#002432" stroke="#002432" stroke-width="1" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="spinner"></div>
+  <span class="loading-text">Modell wird geladen…</span>
+</div>
+
+<div id="error-screen">
+  <strong>Modell konnte nicht geladen werden</strong>
+  <p id="error-msg">Unbekannter Fehler</p>
+  <button class="err-back" onclick="history.back()">← Zurück</button>
+</div>
+
+<div class="overlay">
+  <div class="viewer-header">
+    <button class="back-btn" onclick="history.back()" aria-label="Zurück">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M12.5 15l-5-5 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="model-info">
+      <h2 id="model-name">Modell</h2>
+      <p id="model-desc">Tippen & ziehen zum Drehen</p>
+    </div>
+    <div class="logo-mark-sm">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#002432" stroke="#002432" stroke-width="1" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="overlay-spacer"></div>
+
+  <div class="viewer-bottom">
+    <div class="controls-row">
+      <button class="ctrl-btn btn-vr" id="btn-vr" onclick="enterVR()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M2 7h16v7a1 1 0 01-1 1H3a1 1 0 01-1-1V7z" stroke="white" stroke-width="1.5"/>
+          <circle cx="7" cy="10.5" r="1.5" fill="white"/>
+          <circle cx="13" cy="10.5" r="1.5" fill="white"/>
+          <path d="M8.5 10.5h3" stroke="white" stroke-width="1.2"/>
+        </svg>
+        In VR anzeigen
+      </button>
+      <button class="ctrl-btn btn-ar" id="btn-ar" onclick="enterAR()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 7V4a1 1 0 011-1h3" stroke="#002432" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13 3h3a1 1 0 011 1v3" stroke="#002432" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M17 13v3a1 1 0 01-1 1h-3" stroke="#002432" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M7 17H4a1 1 0 01-1-1v-3" stroke="#002432" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 7.5l3.5 2v4L10 15.5 6.5 13.5v-4L10 7.5z" stroke="#002432" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        In AR anzeigen
+      </button>
+      <button class="ctrl-btn btn-reset" onclick="resetCamera()" aria-label="Kamera zurücksetzen">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M3 9a6 6 0 1110.5-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M14 3v4h-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="touch-hint" id="touch-hint">Tippen & ziehen zum Drehen</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { USDLoader } from 'three/addons/loaders/USDLoader.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
+
+// --- State ---
+let renderer, scene, camera, controls, mixer, clock;
+let modelGroup = null;
+
+// --- Get model ID from URL ---
+const params = new URLSearchParams(window.location.search);
+const modelId = params.get('id');
+
+// --- Load model DB ---
+async function getModelMeta() {
+  const res = await fetch('data/models.json');
+  const models = await res.json();
+  return models.find(m => m.id === modelId);
+}
+
+// --- Init Three.js ---
+function initThree() {
+  const container = document.getElementById('canvas-container');
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.xr.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  // Scene
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a1628);
+  scene.fog = new THREE.Fog(0x0a1628, 20, 60);
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 100);
+  camera.position.set(0, 1.5, 4);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambient);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  dirLight.position.set(5, 10, 5);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.set(1024, 1024);
+  dirLight.shadow.camera.near = 0.1;
+  dirLight.shadow.camera.far = 50;
+  scene.add(dirLight);
+
+  const fillLight = new THREE.DirectionalLight(0xB5D94F, 0.3);
+  fillLight.position.set(-5, 2, -3);
+  scene.add(fillLight);
+
+  // Grid
+  const grid = new THREE.GridHelper(20, 20, 0x1a3a4a, 0x1a3a4a);
+  grid.position.y = -0.01;
+  scene.add(grid);
+
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 0.5;
+  controls.maxDistance = 20;
+  controls.maxPolarAngle = Math.PI / 1.8;
+  controls.target.set(0, 0.5, 0);
+  controls.update();
+
+  clock = new THREE.Clock();
+
+  // Resize
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Render loop
+  renderer.setAnimationLoop(() => {
+    const delta = clock.getDelta();
+    controls.update();
+    if (mixer) mixer.update(delta);
+    renderer.render(scene, camera);
+  });
+}
+
+// --- Load USDC model ---
+async function loadModel(meta) {
+  const loader = new USDLoader();
+
+  return new Promise((resolve, reject) => {
+    loader.load(
+      meta.usdcFile,
+      (group) => {
+        // Center & scale model
+        const box = new THREE.Box3().setFromObject(group);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 2.5 / maxDim;
+        group.scale.setScalar(scale);
+
+        // Center horizontally, place on grid
+        const center = box.getCenter(new THREE.Vector3());
+        group.position.set(
+          -center.x * scale,
+          -box.min.y * scale,
+          -center.z * scale
+        );
+
+        // Shadows
+        group.traverse(obj => {
+          if (obj.isMesh) {
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
+
+        scene.add(group);
+        modelGroup = group;
+
+        // Adjust camera to model
+        const scaledSize = size.clone().multiplyScalar(scale);
+        const dist = Math.max(scaledSize.x, scaledSize.y, scaledSize.z) * 2.2;
+        camera.position.set(0, scaledSize.y * 0.6, dist);
+        controls.target.set(0, scaledSize.y * 0.4, 0);
+        controls.update();
+
+        resolve();
+      },
+      (progress) => {
+        if (progress.total > 0) {
+          const pct = Math.round((progress.loaded / progress.total) * 100);
+          document.querySelector('.loading-text').textContent = `Laden… ${pct}%`;
+        }
+      },
+      reject
+    );
+  });
+}
+
+// --- Fit camera to model ---
+function resetCamera() {
+  if (!modelGroup) return;
+  const box = new THREE.Box3().setFromObject(modelGroup);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const dist = Math.max(size.x, size.y, size.z) * 2.2;
+  camera.position.set(center.x, center.y + size.y * 0.3, center.z + dist);
+  controls.target.copy(center);
+  controls.update();
+}
+window.resetCamera = resetCamera;
+
+// --- VR ---
+let vrButton = null;
+function setupVR() {
+  vrButton = VRButton.createButton(renderer);
+  vrButton.style.display = 'none';
+  document.body.appendChild(vrButton);
+}
+
+window.enterVR = () => {
+  if (vrButton) vrButton.click();
+  else alert('WebXR VR wird auf diesem Gerät nicht unterstützt.');
+};
+
+// --- AR ---
+let arButton = null;
+let currentMeta = null;
+
+function setupAR(meta) {
+  currentMeta = meta;
+
+  // Prüfe ob WebXR AR verfügbar
+  if (navigator.xr) {
+    navigator.xr.isSessionSupported('immersive-ar').then(supported => {
+      if (supported) {
+        arButton = ARButton.createButton(renderer, {
+          requiredFeatures: ['hit-test'],
+          optionalFeatures: ['dom-overlay'],
+          domOverlay: { root: document.body }
+        });
+        arButton.style.display = 'none';
+        document.body.appendChild(arButton);
+      }
+    });
+  }
+}
+
+window.enterAR = () => {
+  // iOS: Quick Look mit USDZ
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (isIOS && currentMeta?.usdzFile) {
+    const a = document.createElement('a');
+    a.href = currentMeta.usdzFile;
+    a.rel = 'ar';
+    const img = document.createElement('img');
+    img.src = '';
+    a.appendChild(img);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    return;
+  }
+
+  // Android/WebXR AR
+  if (arButton) {
+    arButton.click();
+    return;
+  }
+
+  alert('AR wird auf diesem Gerät nicht unterstützt.\nFür iOS: Safari verwenden.\nFür Android: Chrome mit WebXR verwenden.');
+};
+
+// --- Touch hint ---
+function setupTouchHint() {
+  const hint = document.getElementById('touch-hint');
+  let touched = false;
+  const hide = () => {
+    if (!touched) {
+      touched = true;
+      hint.classList.add('hidden');
+    }
+  };
+  document.addEventListener('touchstart', hide, { once: true });
+  document.addEventListener('mousedown', hide, { once: true });
+  setTimeout(() => hint.classList.add('hidden'), 4000);
+}
+
+// --- Main ---
+async function main() {
+  const loadingScreen = document.getElementById('loading-screen');
+  const errorScreen = document.getElementById('error-screen');
+
+  try {
+    if (!modelId) throw new Error('Kein Modell ausgewählt.');
+
+    const meta = await getModelMeta();
+    if (!meta) throw new Error(`Modell "${modelId}" nicht gefunden.`);
+
+    document.getElementById('model-name').textContent = meta.name;
+    document.getElementById('model-desc').textContent = meta.description;
+    document.title = `${meta.name} – heimWatt`;
+
+    initThree();
+    setupVR();
+    setupAR(meta);
+
+    await loadModel(meta);
+
+    loadingScreen.classList.add('hidden');
+    setupTouchHint();
+
+  } catch (err) {
+    console.error(err);
+    loadingScreen.classList.add('hidden');
+    errorScreen.style.display = 'flex';
+    document.getElementById('error-msg').textContent = err.message || String(err);
+  }
+}
+
+main();
+</script>
+</body>
+</html>

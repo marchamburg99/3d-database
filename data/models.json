@@ -1,0 +1,29 @@
+[
+  {
+    "id": "waermepumpe-wolf",
+    "name": "Wärmepumpe Wolf",
+    "description": "Wolf Luft-Wasser-Wärmepumpe, Außengerät",
+    "category": "Wärmepumpe",
+    "usdcFile": "models/waermepumpe_wolf.usdc",
+    "usdzFile": "models/waermepumpe_wolf.usdz",
+    "color": "#B5D94F"
+  },
+  {
+    "id": "waermepumpe-wolf-mit-bodenkonsole",
+    "name": "Wärmepumpe Wolf mit Bodenkonsole",
+    "description": "Wolf Außengerät mit montierter Bodenkonsole",
+    "category": "Wärmepumpe",
+    "usdcFile": "models/waermepumpe_wolf_mit_bodenkonsole.usdc",
+    "usdzFile": "models/waermepumpe_wolf_mit_bodenkonsole.usdz",
+    "color": "#5B42F1"
+  },
+  {
+    "id": "waermepumpe-wolf-bodenkonsole-abstaende",
+    "name": "Wärmepumpe Wolf – Abstände",
+    "description": "Bodenkonsole mit Abstandsmaßen für die Montageplanung",
+    "category": "Wärmepumpe",
+    "usdcFile": "models/waermepumpe_wolf_bodenkonsole_abstaende.usdc",
+    "usdzFile": "models/waermepumpe_wolf_bodenkonsole_abstaende.usdz",
+    "color": "#002432"
+  }
+]
