@@ -1,0 +1,24 @@
+{
+  "name": "3d-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marchamburg99/3d-database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/marchamburg99/3d-database/issues"
+  },
+  "homepage": "https://github.com/marchamburg99/3d-database#readme",
+  "dependencies": {
+    "puppeteer": "^24.38.0"
+  }
+}

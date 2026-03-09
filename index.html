@@ -3,184 +3,346 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>3D-Modelle – heimWatt</title>
+  <title>3D-Bibliothek – heimWatt</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:   #002432;
-      --lime:   #B5D94F;
-      --purple: #5B42F1;
-      --bg:     #F5F5F5;
-      --white:  #FFFFFF;
-      --text:   #1a1a2e;
-      --muted:  #6b7280;
+      --navy:    #002432;
+      --lime:    #B5D94F;
+      --purple:  #5B42F1;
+      --teal:    #0d7a6e;
+      --bg:      #F0F2F5;
+      --white:   #FFFFFF;
+      --text:    #002432;
+      --muted:   #7a8a94;
+      --card-r:  18px;
     }
 
     html, body {
-      height: 100%;
+      min-height: 100%;
       font-family: 'Manrope', sans-serif;
       background: var(--bg);
       color: var(--text);
     }
 
-    /* Header */
+    /* ── Header ─────────────────────────────── */
     header {
-      background: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.96);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0,36,50,0.08);
-      padding: 12px 20px;
-      padding-top: max(12px, env(safe-area-inset-top));
+      border-bottom: 1px solid rgba(0,36,50,0.07);
+      padding: 11px 20px;
+      padding-top: max(11px, env(safe-area-inset-top));
       position: sticky;
       top: 0;
       z-index: 10;
     }
 
-    .logo {
-      text-decoration: none;
-      display: block;
+    .logo img { height: 26px; display: block; text-decoration: none; }
+
+    /* ── Hero-Banner ────────────────────────── */
+    .hero {
+      background: var(--navy);
+      padding: 28px 20px 24px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .logo img {
-      height: 28px;
-      display: block;
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -40px;
+      width: 220px; height: 220px;
+      background: var(--lime);
+      border-radius: 50%;
+      opacity: 0.08;
     }
 
-    /* Main */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -60px;
+      width: 280px; height: 280px;
+      background: var(--purple);
+      border-radius: 50%;
+      opacity: 0.1;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--lime);
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-title span {
+      color: var(--lime);
+    }
+
+    .hero-sub {
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-num {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 2px;
+    }
+
+    .stat-divider {
+      width: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ── Content ────────────────────────────── */
     main {
       padding: 20px 16px;
       max-width: 600px;
       margin: 0 auto;
-      padding-bottom: max(32px, env(safe-area-inset-bottom));
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
     }
 
-    .section-title {
-      font-size: 22px;
-      font-weight: 800;
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      font-size: 16px;
+      font-weight: 700;
       color: var(--navy);
-      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .section-sub {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 20px;
+    .section-head h2::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 18px;
+      background: var(--lime);
+      border-radius: 2px;
     }
 
-    /* Model Grid */
+    .count-pill {
+      background: var(--navy);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    /* ── Model Card ─────────────────────────── */
     .model-grid {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .model-card {
       background: var(--white);
-      border-radius: 16px;
+      border-radius: var(--card-r);
       overflow: hidden;
       text-decoration: none;
       color: inherit;
-      display: flex;
-      flex-direction: row;
-      align-items: stretch;
-      box-shadow: 0 2px 8px rgba(0,36,50,0.08);
+      display: block;
+      box-shadow: 0 2px 12px rgba(0,36,50,0.09);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
 
     .model-card:active {
-      transform: scale(0.98);
-      box-shadow: 0 1px 4px rgba(0,36,50,0.06);
+      transform: scale(0.985);
+      box-shadow: 0 1px 6px rgba(0,36,50,0.07);
     }
 
-    .card-visual {
-      width: 90px;
-      min-height: 100px;
+    /* Farbiger Akzent-Streifen oben */
+    .model-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent-color, var(--lime));
+      z-index: 1;
+    }
+
+    /* Thumbnail-Bereich */
+    .card-thumb {
+      width: 100%;
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+      background: var(--navy);
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* Gradient overlay über dem Bild */
+    .card-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 40%,
+        rgba(0,36,50,0.6) 100%
+      );
+    }
+
+    /* Badge-Gruppe oben rechts im Bild */
+    .thumb-badges {
+      position: absolute;
+      top: 12px;
+      right: 12px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      gap: 5px;
+      z-index: 2;
     }
 
-    .card-visual svg {
-      width: 44px;
-      height: 44px;
-      opacity: 0.9;
+    .tbadge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+      backdrop-filter: blur(8px);
     }
 
+    .tbadge-vr {
+      background: rgba(91,66,241,0.85);
+      color: white;
+    }
+
+    .tbadge-ar {
+      background: rgba(181,217,79,0.9);
+      color: var(--navy);
+    }
+
+    /* Card-Body */
     .card-body {
-      padding: 16px 16px 16px 4px;
-      flex: 1;
+      padding: 14px 16px 16px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 4px;
+      gap: 5px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .card-category {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       color: var(--muted);
     }
 
+    .cat-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-color, var(--lime));
+      flex-shrink: 0;
+    }
+
     .card-name {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       color: var(--navy);
-      line-height: 1.3;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
     }
 
     .card-desc {
       font-size: 13px;
       color: var(--muted);
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
-    .card-arrow {
+    .card-footer {
       display: flex;
       align-items: center;
-      padding-right: 16px;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .card-cta {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-color, var(--lime));
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-cta svg {
+      transition: transform 0.15s;
+    }
+
+    .model-card:active .card-cta svg {
+      transform: translateX(2px);
+    }
+
+    .file-size {
+      font-size: 11px;
       color: var(--muted);
     }
 
-    /* Badge */
-    .badge-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: var(--bg);
-      color: var(--navy);
-    }
-
-    .badge.vr { background: var(--navy); color: var(--white); }
-    .badge.ar { background: var(--lime); color: var(--navy); }
-
-    /* Loading */
+    /* ── Loading ─────────────────────────────── */
     .loading {
       text-align: center;
       padding: 60px 20px;
       color: var(--muted);
       font-size: 15px;
-    }
-
-    /* Empty */
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
     }
   </style>
 </head>
@@ -192,9 +354,33 @@
   </a>
 </header>
 
+<div class="hero">
+  <p class="hero-label">Produktkonfigurator</p>
+  <h1 class="hero-title">3D-<span>Bibliothek</span></h1>
+  <p class="hero-sub">Tippe auf ein Modell – in 3D erkunden,<br>direkt in VR oder AR erleben.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" id="stat-count">–</span>
+      <span class="stat-label">Modelle</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">3D</span>
+      <span class="stat-label">WebGL Viewer</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">AR</span>
+      <span class="stat-label">Quick Look</span>
+    </div>
+  </div>
+</div>
+
 <main>
-  <p class="section-title">3D-Bibliothek</p>
-  <p class="section-sub">Tippe auf ein Modell zum Anzeigen – in 3D oder direkt in VR/AR</p>
+  <div class="section-head">
+    <h2>Alle Modelle</h2>
+    <span class="count-pill" id="count-pill">–</span>
+  </div>
 
   <div class="model-grid" id="grid">
     <div class="loading">Modelle werden geladen…</div>
@@ -202,43 +388,47 @@
 </main>
 
 <script>
-const ICON_SVG = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="12" y="8" width="24" height="32" rx="4" fill="white" fill-opacity="0.25" stroke="white" stroke-width="2"/>
-  <rect x="16" y="14" width="16" height="3" rx="1.5" fill="white" fill-opacity="0.7"/>
-  <rect x="16" y="20" width="10" height="3" rx="1.5" fill="white" fill-opacity="0.7"/>
-  <circle cx="34" cy="34" r="8" fill="white" fill-opacity="0.2" stroke="white" stroke-width="1.5"/>
-  <path d="M31 34l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`;
-
 async function loadModels() {
   const grid = document.getElementById('grid');
   try {
     const res = await fetch('data/models.json');
     const models = await res.json();
+
+    document.getElementById('stat-count').textContent = models.length;
+    document.getElementById('count-pill').textContent = models.length;
+
     grid.innerHTML = models.map(m => `
-      <a class="model-card" href="viewer.html?id=${encodeURIComponent(m.id)}" data-id="${m.id}">
-        <div class="card-visual" style="background:${m.color}">
-          ${ICON_SVG}
-        </div>
-        <div class="card-body">
-          <span class="card-category">${m.category}</span>
-          <span class="card-name">${m.name}</span>
-          <span class="card-desc">${m.description}</span>
-          <div class="badge-row">
-            <span class="badge vr">VR</span>
-            <span class="badge ar">AR</span>
-            <span class="badge">3D</span>
+      <a class="model-card" href="viewer.html?id=${encodeURIComponent(m.id)}"
+         style="--accent-color:${m.color}">
+        <div class="card-thumb">
+          <img src="thumbnails/${m.id}.png" alt="${m.name}"
+               onerror="this.parentElement.style.background='${m.color}22';this.style.display='none'">
+          <div class="thumb-badges">
+            <span class="tbadge tbadge-vr">VR</span>
+            <span class="tbadge tbadge-ar">AR</span>
           </div>
         </div>
-        <div class="card-arrow">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M7.5 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <div class="card-body">
+          <div class="card-meta">
+            <div class="cat-dot"></div>
+            <span class="card-category">${m.category}</span>
+          </div>
+          <span class="card-name">${m.name}</span>
+          <span class="card-desc">${m.description}</span>
+          <div class="card-footer">
+            <span class="card-cta">
+              Jetzt ansehen
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
         </div>
       </a>
     `).join('');
   } catch (e) {
-    grid.innerHTML = `<div class="empty"><p>Fehler beim Laden der Modelle.</p></div>`;
+    grid.innerHTML = `<div class="loading">Fehler beim Laden der Modelle.</div>`;
   }
 }
 
