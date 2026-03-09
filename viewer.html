@@ -346,7 +346,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { USDLoader } from 'three/addons/loaders/USDLoader.js';
+import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 
@@ -438,14 +438,17 @@ function initThree() {
   });
 }
 
-// --- Load USDC model ---
+// --- Load USDZ model ---
 async function loadModel(meta) {
-  const loader = new USDLoader();
+  const loader = new USDZLoader();
 
   return new Promise((resolve, reject) => {
     loader.load(
-      meta.usdcFile,
+      meta.usdzFile,
       (group) => {
+        // Blender exportiert Z-up → drei.js ist Y-up
+        group.rotation.x = -Math.PI / 2;
+
         // Center & scale model
         const box = new THREE.Box3().setFromObject(group);
         const size = box.getSize(new THREE.Vector3());
@@ -507,42 +510,56 @@ window.resetCamera = resetCamera;
 
 // --- VR ---
 let vrButton = null;
-function setupVR() {
-  vrButton = VRButton.createButton(renderer);
-  vrButton.style.display = 'none';
-  document.body.appendChild(vrButton);
+let vrSupported = false;
+
+async function setupVR() {
+  if (navigator.xr) {
+    vrSupported = await navigator.xr.isSessionSupported('immersive-vr');
+  }
+  if (vrSupported) {
+    vrButton = VRButton.createButton(renderer);
+    vrButton.style.display = 'none';
+    document.body.appendChild(vrButton);
+  }
+  // VR-Button-Label anpassen
+  const btn = document.getElementById('btn-vr');
+  if (!vrSupported) {
+    btn.style.opacity = '0.5';
+    btn.title = 'Benötigt ein VR-Headset (z.B. Meta Quest)';
+  }
 }
 
 window.enterVR = () => {
-  if (vrButton) vrButton.click();
-  else alert('WebXR VR wird auf diesem Gerät nicht unterstützt.');
+  if (vrSupported && vrButton) {
+    vrButton.click();
+  } else {
+    showToast('VR benötigt ein Headset (z.B. Meta Quest). Das Modell ist im 3D-Viewer unten sichtbar.');
+  }
 };
 
 // --- AR ---
 let arButton = null;
+let arSupported = false;
 let currentMeta = null;
 
-function setupAR(meta) {
+async function setupAR(meta) {
   currentMeta = meta;
-
-  // Prüfe ob WebXR AR verfügbar
   if (navigator.xr) {
-    navigator.xr.isSessionSupported('immersive-ar').then(supported => {
-      if (supported) {
-        arButton = ARButton.createButton(renderer, {
-          requiredFeatures: ['hit-test'],
-          optionalFeatures: ['dom-overlay'],
-          domOverlay: { root: document.body }
-        });
-        arButton.style.display = 'none';
-        document.body.appendChild(arButton);
-      }
+    arSupported = await navigator.xr.isSessionSupported('immersive-ar');
+  }
+  if (arSupported) {
+    arButton = ARButton.createButton(renderer, {
+      requiredFeatures: ['hit-test'],
+      optionalFeatures: ['dom-overlay'],
+      domOverlay: { root: document.body }
     });
+    arButton.style.display = 'none';
+    document.body.appendChild(arButton);
   }
 }
 
 window.enterAR = () => {
-  // iOS: Quick Look mit USDZ
+  // iOS Safari: Quick Look mit USDZ
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   if (isIOS && currentMeta?.usdzFile) {
     const a = document.createElement('a');
@@ -556,15 +573,28 @@ window.enterAR = () => {
     document.body.removeChild(a);
     return;
   }
-
-  // Android/WebXR AR
-  if (arButton) {
+  // Android WebXR AR
+  if (arSupported && arButton) {
     arButton.click();
     return;
   }
-
-  alert('AR wird auf diesem Gerät nicht unterstützt.\nFür iOS: Safari verwenden.\nFür Android: Chrome mit WebXR verwenden.');
+  showToast('AR nicht verfügbar. Für iOS: Safari nutzen. Für Android: Chrome mit WebXR.');
 };
+
+// --- Toast ---
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:12px;z-index:999;max-width:80vw;text-align:center;backdrop-filter:blur(8px);transition:opacity 0.4s;font-family:Manrope,sans-serif;line-height:1.4';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.opacity = '0', 4000);
+}
 
 // --- Touch hint ---
 function setupTouchHint() {
@@ -597,8 +627,8 @@ async function main() {
     document.title = `${meta.name} – heimWatt`;
 
     initThree();
-    setupVR();
-    setupAR(meta);
+    await setupVR();
+    await setupAR(meta);
 
     await loadModel(meta);
 
